@@ -7,16 +7,19 @@ echo 创建桌面快捷方式
 echo ==========================================
 echo.
 
-set "TARGET=%~dp0start_tiktok_agent.bat"
+set "PROJECT_DIR=F:\1.Vscode文件存放\tiktok-trend-packaging-agent"
+set "TARGET=%PROJECT_DIR%\start_tiktok_agent.bat"
 set "SHORTCUT=%USERPROFILE%\Desktop\欧洲TikTok软包装选题助手.lnk"
 
 if not exist "%TARGET%" (
     echo [错误] 未找到 start_tiktok_agent.bat
+    echo 路径: %TARGET%
+    echo.
     pause
-    exit /b
+    exit /b 1
 )
 
-powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%SHORTCUT%'); $s.TargetPath = '%TARGET%'; $s.WorkingDirectory = '%~dp0'; $s.Description = 'Europe TikTok B2B Video Learning Assistant'; $s.Save()"
+powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%SHORTCUT%'); $s.TargetPath = '%TARGET%'; $s.WorkingDirectory = '%PROJECT_DIR%'; $s.Description = 'Europe TikTok B2B Video Learning Assistant'; $s.Save()"
 
 if exist "%SHORTCUT%" (
     echo [成功] 桌面快捷方式已创建:
@@ -26,6 +29,5 @@ if exist "%SHORTCUT%" (
 ) else (
     echo [错误] 创建快捷方式失败。
 )
-
 echo.
 pause

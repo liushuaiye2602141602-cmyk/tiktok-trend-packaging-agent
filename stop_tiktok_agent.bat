@@ -9,36 +9,35 @@ echo.
 
 set "PORT=3002"
 
-echo 正在查找占用 %PORT% 端口的进程...
-echo.
-
-set found=0
+:: 查找占用端口的进程
+set "PID_FOUND="
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%PORT%" ^| findstr "LISTENING"') do (
-    set found=1
-    set pid=%%a
-    echo 找到进程 PID: %%a
-    for /f "tokens=*" %%b in ('tasklist /FI "PID eq %%a" /FO CSV /NH 2^>nul') do echo 进程信息: %%b
+    set "PID_FOUND=%%a"
 )
 
-if %found%==0 (
+if not defined PID_FOUND (
     echo %PORT% 端口未被占用，项目可能未在运行。
     echo.
     pause
-    exit /b
+    exit /b 0
 )
 
+echo 找到占用 %PORT% 端口的进程 (PID: %PID_FOUND%)
+for /f "tokens=*" %%b in ('tasklist /FI "PID eq %PID_FOUND%" /FO CSV /NH 2^>nul') do echo 进程信息: %%b
 echo.
-choice /c YN /m "确认结束以上进程？(Y/N)"
+
+choice /c YN /m "确认结束该进程？(Y/N)"
 if errorlevel 2 (
     echo 已取消。
     pause
-    exit /b
+    exit /b 0
 )
 
-for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%PORT%" ^| findstr "LISTENING"') do (
-    taskkill /F /PID %%a >nul 2>&1
+taskkill /F /PID %PID_FOUND% >nul 2>&1
+if errorlevel 1 (
+    echo [错误] 无法结束进程，可能需要管理员权限。
+) else (
+    echo 服务已停止。
 )
-
 echo.
-echo 服务已停止。
 pause

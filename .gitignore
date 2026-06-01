@@ -1,22 +1,41 @@
+# Dependencies
 node_modules/
+
+# Next.js
 .next/
 out/
+
+# Build
 dist/
+*.tsbuildinfo
+
+# Environment
 .env
 .env.local
 .env.production
 .env.development
+
+# Logs
 *.log
 logs/
 startup_log.txt
-*.sqlite
-*.sqlite3
+
+# Database - real data
 data/db.json
 data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# OS
 .DS_Store
 Thumbs.db
-*.tsbuildinfo
-next-env.d.ts
-.vercel
+
+# IDE
 .idea/
 .vscode/settings.json
+
+# Vercel
+.vercel
+
+# Next.js type declarations
+next-env.d.ts

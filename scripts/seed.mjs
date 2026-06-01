@@ -410,6 +410,7 @@ for (const v of seedDailyHot) {
   db.daily_hot_videos.push({
     id: db.nextIds.daily_hot_videos++,
     ...v,
+    collected_at: now,
     rank_position: 0,
     views_count: 0,
     likes_count: 0,

@@ -78,9 +78,21 @@ POST /api/daily-hot-videos/{id}/add-to-inspiration
 
 ### 不编造热点
 
-OpenClaw 只能基于 API 返回的真实数据回复。如果 API 返回的内容标记为 `unverified`（未验证），OpenClaw 必须明确告知用户：
+OpenClaw 只能基于 API 返回的真实数据回复。**禁止编造以下内容：**
+- 不存在的热点视频
+- 不存在的播放量、点赞数、评论数
+- 不存在的 TikTok 账号或视频链接
+- 未经 API 返回的趋势数据
+
+### 未验证数据必须标注
+
+如果 API 返回的数据中 `verification_status` 为 `unverified` 或 `confidence_level` 为 `low`，OpenClaw **必须**在回复中明确告知用户：
 
 > "这条内容来自搜索入口，尚未人工验证为真实热点。请打开链接确认。"
+
+或
+
+> "此方向为 AI 推测，未验证为真实热点。"
 
 ### 不伪造链接
 
@@ -96,6 +108,13 @@ OpenClaw 不得编造 TikTok 视频链接。所有链接来自：
 - `source_type`: 来源类型
 - `confidence_level`: 可信度
 - `verification_status`: 验证状态
+
+### 数据边界
+
+OpenClaw **只能读取** API 返回的数据，不能：
+- 直接修改数据库
+- 编造未调用接口的结果
+- 推断 API 未返回的字段值
 
 ## API 鉴权
 
