@@ -1,0 +1,198 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Europe TikTok B2B Video Learning & Packaging Adaptation Assistant",
+    "description": "API for managing TikTok B2B video research, inspiration library, daily hot video collection, and content recommendations for flexible packaging factories targeting European markets.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:3002", "description": "Local development" }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": { "type": "string" },
+                        "app": { "type": "string" },
+                        "version": { "type": "string" },
+                        "time": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/external/daily-brief": {
+      "get": {
+        "summary": "Daily brief for n8n/OpenClaw",
+        "description": "Returns today's summary: hot video count, recommendations, high-value inspirations, and suggested observations.",
+        "tags": ["External"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Daily brief data" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/external/today-recommendations": {
+      "get": {
+        "summary": "Today's video recommendations",
+        "tags": ["External"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Today's recommendations list" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/external/account-checklist": {
+      "get": {
+        "summary": "Accounts to check today",
+        "tags": ["External"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Account checklist" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/external/high-value-inspirations": {
+      "get": {
+        "summary": "High-value inspiration videos",
+        "tags": ["External"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "High-value inspiration videos" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/external/webhook/push-daily-brief": {
+      "post": {
+        "summary": "Push daily brief to webhook",
+        "description": "Pushes the daily brief to a configured n8n or OpenClaw webhook URL.",
+        "tags": ["External"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webhook_url": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Webhook push result" },
+          "400": { "description": "No webhook URL" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/daily-hot-videos": {
+      "get": {
+        "summary": "List daily hot videos",
+        "tags": ["Daily Hot Videos"],
+        "parameters": [
+          { "name": "date", "in": "query", "schema": { "type": "string" } },
+          { "name": "country", "in": "query", "schema": { "type": "string" } },
+          { "name": "source_type", "in": "query", "schema": { "type": "string" } },
+          { "name": "confidence_level", "in": "query", "schema": { "type": "string" } },
+          { "name": "verification_status", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "List of hot video entries" } }
+      },
+      "post": {
+        "summary": "Add hot video entry",
+        "tags": ["Daily Hot Videos"],
+        "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/api/daily-hot-videos/generate-checklist": {
+      "post": {
+        "summary": "Generate daily checklist",
+        "description": "Generates a daily collection checklist with Creative Center links, search links, B2B references, and competitor accounts.",
+        "tags": ["Daily Hot Videos"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "date": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Checklist generated" } }
+      }
+    },
+    "/api/inspiration-videos": {
+      "get": {
+        "summary": "List inspiration videos",
+        "tags": ["Inspiration"],
+        "parameters": [
+          { "name": "platform", "in": "query", "schema": { "type": "string" } },
+          { "name": "video_type", "in": "query", "schema": { "type": "string" } },
+          { "name": "reference_industry", "in": "query", "schema": { "type": "string" } },
+          { "name": "value_level", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "List of inspiration videos" } }
+      },
+      "post": {
+        "summary": "Add inspiration video",
+        "tags": ["Inspiration"],
+        "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/api/recommendations/today": {
+      "get": {
+        "summary": "Today's recommendations",
+        "tags": ["Recommendations"],
+        "responses": { "200": { "description": "Today's video recommendations" } }
+      }
+    },
+    "/api/recommendations/generate": {
+      "post": {
+        "summary": "Generate recommendations",
+        "tags": ["Recommendations"],
+        "responses": { "200": { "description": "Generated recommendations" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Set API_AUTH_TOKEN in .env, then pass as Bearer token"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Set API_AUTH_TOKEN in .env, then pass as x-api-key header"
+      }
+    }
+  }
+}
