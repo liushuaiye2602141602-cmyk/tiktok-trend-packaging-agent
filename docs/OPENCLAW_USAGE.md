@@ -2,15 +2,41 @@
 
 本文档说明 OpenClaw 如何调用本项目的 API。
 
-## 可调用的接口
+## 推荐调用方式
+
+OpenClaw 推荐调用 Markdown 格式接口，获取可直接展示的简报内容：
+
+```
+GET http://localhost:3002/api/external/daily-brief-markdown
+Headers:
+  x-api-key: your-token
+```
+
+返回数据：
+```json
+{
+  "success": true,
+  "data": {
+    "date": "2026-06-02",
+    "markdown": "# 今日欧洲 TikTok B2B 热点观察简报\n..."
+  },
+  "message": "ok"
+}
+```
+
+OpenClaw 可以直接将 `data.markdown` 推送给用户。
+
+## 所有可调用的接口
 
 | 接口 | 说明 |
 |------|------|
-| `GET /api/external/daily-brief` | 今日简报（热点数量、推荐选题、待检查账号） |
+| `GET /api/external/daily-brief-markdown` | **推荐** 今日简报（Markdown 格式，可直接推送） |
+| `GET /api/external/daily-brief` | 今日简报（JSON 格式） |
 | `GET /api/external/today-recommendations` | 今日推荐选题列表 |
 | `GET /api/external/account-checklist` | 今日待检查账号清单 |
 | `GET /api/external/high-value-inspirations` | 高价值参考视频列表 |
-| `POST /api/external/webhook/push-daily-brief` | 推送简报到 webhook |
+| `POST /api/external/test-push-daily-brief` | 测试推送到 webhook |
+| `POST /api/external/webhook/push-daily-brief` | 推送简报到指定 webhook |
 | `POST /api/daily-hot-videos/generate-checklist` | 生成今日热点采集清单 |
 | `GET /api/inspiration-videos` | 优秀视频观察库 |
 | `GET /api/recommendations/today` | 今日推荐选题 |
@@ -20,7 +46,7 @@
 ### 基本请求
 
 ```
-GET http://localhost:3002/api/external/daily-brief
+GET http://localhost:3002/api/external/daily-brief-markdown
 Headers:
   x-api-key: your-token
 ```
@@ -28,27 +54,22 @@ Headers:
 ### 使用 Bearer Token
 
 ```
-GET http://localhost:3002/api/external/daily-brief
+GET http://localhost:3002/api/external/daily-brief-markdown
 Headers:
   Authorization: Bearer your-token
 ```
 
 ## 典型使用场景
 
-### 场景 1：获取今日简报
+### 场景 1：获取今日简报并推送
 
 用户问"今天有什么热点？"时，OpenClaw 调用：
 
 ```
-GET /api/external/daily-brief
+GET /api/external/daily-brief-markdown
 ```
 
-返回数据包括：
-- `hot_videos_count`: 今日采集入口总数
-- `unverified_count`: 待验证数量
-- `recommendations_count`: 今日推荐选题数
-- `today_recommendations`: 选题列表
-- `suggested_observations`: 建议观察方向
+取出 `data.markdown` 直接推送给用户。
 
 ### 场景 2：获取待检查账号
 
@@ -74,27 +95,35 @@ GET /api/external/high-value-inspirations
 POST /api/daily-hot-videos/{id}/add-to-inspiration
 ```
 
-## 重要原则
+## 重要原则（必须遵守）
 
-### 不编造热点
+### 1. 不编造热点
 
-OpenClaw 只能基于 API 返回的真实数据回复。**禁止编造以下内容：**
+OpenClaw **只能**基于 API 返回的真实数据回复。**禁止编造以下内容：**
 - 不存在的热点视频
 - 不存在的播放量、点赞数、评论数
 - 不存在的 TikTok 账号或视频链接
 - 未经 API 返回的趋势数据
 
-### 未验证数据必须标注
+### 2. 未验证数据必须标注
 
-如果 API 返回的数据中 `verification_status` 为 `unverified` 或 `confidence_level` 为 `low`，OpenClaw **必须**在回复中明确告知用户：
+如果 API 返回的数据中 `verification_status` 为 `unverified`，OpenClaw **必须**在回复中明确告知用户：
 
 > "这条内容来自搜索入口，尚未人工验证为真实热点。请打开链接确认。"
 
-或
+如果 `confidence_level` 为 `low`，必须说明：
 
 > "此方向为 AI 推测，未验证为真实热点。"
 
-### 不伪造链接
+### 3. 搜索入口不等于真实热视频
+
+API 中 `source_type` 为 `TikTok Search` 的条目只是"搜索入口"，不是已确认的热视频。OpenClaw 不能把搜索入口说成"热门视频"或"爆款视频"。
+
+### 4. 没有 video_url 只能说"待观察"
+
+如果条目没有 `video_url`，说明还没有真实视频链接。OpenClaw 只能说"待观察入口"，不能编造视频内容描述。
+
+### 5. 不伪造链接
 
 OpenClaw 不得编造 TikTok 视频链接。所有链接来自：
 - 用户手动录入
@@ -102,14 +131,14 @@ OpenClaw 不得编造 TikTok 视频链接。所有链接来自：
 - TikTok 搜索入口
 - 竞争对手账号主页
 
-### 标记来源
+### 6. 标记来源
 
 每条回复需注明数据来源：
 - `source_type`: 来源类型
 - `confidence_level`: 可信度
 - `verification_status`: 验证状态
 
-### 数据边界
+### 7. 数据边界
 
 OpenClaw **只能读取** API 返回的数据，不能：
 - 直接修改数据库

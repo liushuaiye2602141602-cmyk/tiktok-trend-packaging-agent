@@ -99,6 +99,8 @@ cp .env.example .env.local
 | `API_AUTH_TOKEN` | API 鉴权 Token（空则跳过鉴权） | (空) |
 | `N8N_WEBHOOK_URL` | n8n 推送地址 | (空) |
 | `OPENCLAW_WEBHOOK_URL` | OpenClaw 推送地址 | (空) |
+| `DAILY_BRIEF_TIME` | 每日简报推送时间（供参考，实际由 n8n 调度） | `09:00` |
+| `ENABLE_DAILY_PUSH` | 是否启用自动推送（需外部调度器） | `false` |
 
 ## Windows 启动脚本
 
@@ -111,6 +113,7 @@ cp .env.example .env.local
 | `create_desktop_shortcut.bat` | 创建桌面快捷方式 |
 | `install_startup_shortcut.bat` | 设置开机自动启动 |
 | `remove_startup_shortcut.bat` | 取消开机自动启动 |
+| `test_daily_brief_api.bat` | 测试每日简报 API 是否正常 |
 
 ## 数据库说明
 
@@ -138,11 +141,13 @@ cp .env.example .env.local
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/external/daily-brief` | 今日简报 |
+| GET | `/api/external/daily-brief` | 今日简报（JSON） |
+| GET | `/api/external/daily-brief-markdown` | 今日简报（Markdown，推荐用于推送） |
 | GET | `/api/external/today-recommendations` | 今日推荐选题 |
 | GET | `/api/external/account-checklist` | 待检查账号 |
 | GET | `/api/external/high-value-inspirations` | 高价值参考视频 |
-| POST | `/api/external/webhook/push-daily-brief` | 推送简报到 webhook |
+| POST | `/api/external/test-push-daily-brief` | 测试推送到 webhook |
+| POST | `/api/external/webhook/push-daily-brief` | 推送简报到指定 webhook |
 
 ### 每日热点采集
 
